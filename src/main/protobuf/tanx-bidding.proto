@@ -1,0 +1,239 @@
+// Tanx�����������ݽӿ�
+// �ֶ��꾡������μ� http://sps.corp.alimama.com/ad/ADExchange/DocLib/Tan(X)%20Exchange%20API-PF.pdf
+
+package com.tagtoo.openbidder.tanx;
+
+message BidRequest {
+
+	//------------------------------------------- Э�����Ϣ
+
+	// Э��汾��, ��������֧�ֵİ汾��Ϊ3
+	required int32 version = 1;
+
+	// Tanxϵͳ��ɵ�Ψһ�ľ���ID, 32�ֽڵ��ַ�
+	required string bid = 2;
+
+	//�����ʵ����ô����һ������Ҫ��
+	//DSP ��Ҫ�������BidResponse
+	//���ǽ���ǲ���ʾ���û���DSP�����յ�һ����Ӧ
+	optional uint32 is_test = 11 [default = 0];
+
+	//�����ʵ����ô���Ҫ���Ŀ���Ǻ��������ӳ١�
+	//DSP��Ҫ����һ���յ�BidResponse
+	optional uint32 is_ping = 12 [default = 0];
+
+	//------------------------------------------- �������Ϣ
+
+	// tanxϵͳ����cookie�ļ��ܽ��, ����Ϊ12���ֽ�
+	// ���ڰ���ϵ��DSP, ���ֶ�Ϊδ���ܵ�acookie, ����Ϊ24���ֽ�
+	optional string tid = 3;
+
+	// �����ߵ�IP��ַ, ipv4 �磺192.168.1.1
+	optional string ip = 4;
+
+	// �����ߵĴ������������
+	// ԭʼ�û�UA
+	optional string user_agent = 5;
+
+	// �û�ʱ��ƫ���� 
+	// �ٸ�����, ������ timezone_offset = 60 * 8 = 480.
+	optional int32 timezone_offset = 13;
+
+	// �û���ֱ���
+	// Ԥ���ֶ�, ��������
+	repeated int32 user_vertical = 14;
+
+	// cookie�汾��
+	// tid �ֶεİ汾��
+	optional uint32 tid_version = 19;
+
+	//------------------------------------------- ��ҳ��Ϣ
+
+	// ������Դ��վ����Ҫ��Ŀ����תurl, ��ֵ
+	// ���200���ֽ�
+	repeated string excluded_click_through_url = 6;
+
+	// ��Դurl�� ����û���������õ���վ���ֶα�����
+	// ��������������Ͷ����վ, ����ʹ��anonymous_id
+	optional string url = 7;
+
+	// ��ҳ��վ����
+	// �μ�����ֵ� Tanx�ֵ��ļ�-��վ���.txt ����
+	optional uint32 category = 8;
+
+	// ����������Դ: ���ͬ��adxƽ̨
+	// 0: Tanxԭ������ 1: Google����
+	// �μ�����ֵ� Tanx�ֵ��ļ�-������Դ.txt ����
+	optional uint32 adx_type = 9 [default = 0];
+
+	// ��Դurl, ��������������Ͷ�ݵ���վʹ������ֶΡ�
+	// ֱ��ʹ��google�����
+	optional string anonymous_id = 15;
+
+	// ��ѭ ISO 639-1���Ա����׼ ˫��ĸ����
+	// ���� en zh ja
+	optional string detected_language = 16;
+
+	// ��վ��ֱ����İ汾��
+	// category �ֶΰ汾��
+	optional int32 category_version = 18;
+
+	//------------------------------------------- ���λ��Ϣ
+
+	message AdzInfo {
+		// id: ҳ����λ��ţ���0��ʼ����
+		// �ڷ��ص�ʱ�����ǻ�������ֶ�ƥ����
+		required uint32 id = 1; 
+
+		// tanxϵͳ������λ��Ψһ��ʶ
+		// Ϊ��ǰ���λ��pid(�����ڲ�), �������ṩ��Ϊ�ǰ���ϵ,���pidΪ�����ṩ���ڰ���ϵ������pid
+		required string pid = 2; 
+
+		// ���λ�ĳߴ�: widthxheight e.g.200x300
+		optional string size = 3;
+
+		// Tanx����DSP���صĲ��뾺�۵Ĺ��ĸ���
+		// Ĭ��Ϊ2,DSP�����ṩС�ڵ��ڴ���ݵĹ�����,Tan(X)���ȡ��Ӧ��������澺��(���۽��ֻ��һ��ʤ��)
+		// ���ⲿ�� ad_bid_count Ϊ 1
+		optional uint32 ad_bid_count = 4 [default = 2];
+
+		// չ����ʽ
+		// �μ�����ֵ� Tanx�ֵ��ļ�-չ����ʽ.txt ����
+		// 1 ҳ��̶����λ��2 �������λ��3 ҳ��Ư�����λ
+		repeated uint32 view_type = 5;
+
+		// ���εĴ������� 
+		// �μ�����ֵ� Tanx�ֵ��ļ�-��洴������.txt ����
+		// 1 ���� 2 ͼƬ 3 Flash 4 ��Ƶ 5 ������ 6 ͼ��(iframe��ʽ����) 7 JS����� 8 HTML��� 9 Flash���ڸ�(��̬Flash)
+		repeated uint32 excluded_filter = 6;
+
+		// ������;���۸�, DSP������Ҫ��С�����ֵ, ��λΪ��, ֻ֧�������
+		optional uint32 min_cpm_price = 7;
+
+		// ���λ���λ��
+		// 0��δ�����; 1: ������; 2:��������
+		enum Location {
+			NA = 0;
+			FIRST_VIEW = 1;
+			OTHER_VIEW = 2;
+		}
+		optional Location adz_location = 8 [default = NA];
+
+	}
+	repeated AdzInfo adzinfo = 10;
+
+	// ���ε�������Ŀ
+	// �μ�����ֵ� Tanx�ֵ��ļ�-�������.txt ����
+	repeated int32 excluded_sensitive_category = 17;
+
+	// ���εĹ����ҵ��Ŀ
+	// �μ�����ֵ� Tanx�ֵ��ļ�-������.txt ����
+	repeated int32 excluded_ad_category = 20;
+}
+
+
+message BidResponse {
+
+	//------------------------------------------- Э�����Ϣ
+
+	// Э��汾��, ��������֧�ֵİ汾��Ϊ3
+	required int32 version = 1;
+
+	// BidRequest�д�������bid, 32�ֽڵ��ַ�
+	required string bid = 2;
+
+	//------------------------------------------- �����Ϣ
+
+	// ��涨��
+	message Ads {
+		// id: ҳ����λ��ţ���Ҫ��BidRequest�е�AdzInfo���id���Ӧ
+		required uint32 adzinfo_id = 1;
+
+		// �ƻ�����߾���۸�, ��λΪ��
+		// ǧ��չ�ֽ��
+		required uint32 max_cpm_price = 2;
+
+		// ÿ�����λ��Ҫ�Ĺ������,Ĭ��Ϊ0��ʼ����,���ܳ���ad_bid_count����
+		optional uint32 ad_bid_count_idx = 3;
+
+		// ������Ƭ��(aloc)
+		optional string html_snippet = 4;
+
+		// ����Ŀ����ת��ַ
+		// ��Ҫhttp://����https://Э��ͷ
+		repeated string click_through_url = 5;
+
+		// �����ҵ������Ŀ����ҵ��Ŀ
+		// ��䷵�ع��������������Ŀid�͹����Ŀid
+		// ���صĹ������������Ŀ���밴������ֵ���(�������.txt)���������id�������
+		// ���صĹ������ĳЩ�����ҵ��Ŀ���밴������ֵ���(������.txt)�����id�������
+		// ���޷���֣����0. 
+		// Tanx����֤���ֶ��Ƿ���BidRequest�е�excluded_sensitive_category�ֶκ�excluded_ad_category�ֶ��н���.
+		repeated int32 category = 6;
+
+		// ��洴������
+		// �μ�����ֵ� Tanx�ֵ��ļ�-��洴������.txt ����
+		// 1 ���� 2 ͼƬ 3 Flash 4 ��Ƶ 5 ������ 6 ͼ��(iframe��ʽ����) 7 JS����� 8 HTML��� 9 Flash���ڸ�(��̬Flash)
+		repeated int32 creative_type = 7;
+
+		// network�Զ���id
+		// only in [_0-9a-zA-Z]
+		// max_length: 128
+		optional string network_guid = 8;
+
+		// DSP��Ҫ���ݵĶ����Զ������
+		// Tanx���ھ��۷�����ʱ�򽫸��ֶη�����DSP
+		// ������ʹ�õķָ���Ϊ�ַ�G��'\007'
+		// max_length: 128
+		optional string extend_data = 9;
+
+		// Ϊ����Ŀ��ҳ���url��ַ
+		// ���ұ�����http://����https://��ͷ.
+		// destination_url�����ǲ������κμ��ܻ�����ת������Ŀ���ַ
+		repeated string destination_url = 10;
+
+		// ��洴��ID
+		// ���ֶ���DSP���ã����ڱ�Ǵ�������״̬�����Ȳ�����64�ֽ�
+		// ����ͬ�Ĵ��ⱻ������ͬ��ID������ĳ�����ⷢ������ᵼ��������ͬID�Ĵ��ⱻ�ܾ�Ͷ��
+		// ��ͬһ�����ⱻ�����˲�ͬ��ID���ᵼ�¸ô��ⱻ�ܾ�Ͷ�Ż�����˻����ܾ�Ͷ��
+		// ���ֶβ��ܰ�س������Լ�����ɼ��ַ�
+		optional string creative_id = 11;
+	}
+	repeated Ads ads = 3;
+}
+
+
+//ֻ�о��۳ɹ���ʱ��Tanx�Ż���DSP����BidResult
+
+message BidResult {
+
+	//------------------------------------------- Э�����Ϣ
+
+	// Э��汾��, ��������֧�ֵİ汾��Ϊ3
+	required int32 version = 1;
+
+	// BidRequest�д�������bid, 32�ֽڵ��ַ�
+	required string bid = 2;
+
+	//------------------------------------------- ���۽����Ϣ
+
+	message Res {
+		// id:  �±꣬��0��ʼ����(����)
+		required uint32 adzinfo_id = 1;
+
+		// ÿ�����λ��Ҫ�Ĺ������,Ĭ��Ϊ0��ʼ����,���ܳ���adcount����
+		optional uint32 ad_bid_count_idx = 2;
+
+		// ��ΪTanxֻ���򾺼۳ɹ��������ͷ���
+		// �������codeֻ����0
+		optional int32 result_code = 3 [default = 0];
+
+		// ����ɹ��۸� ,��λΪ��
+		// Tanx����DSPҪ�ļ۸�ǧ��չ�ֽ��
+		optional uint32 result_price = 4;
+
+		// DSP�ھ��۹���з��͸�Tanx��extend_data�ֶ�
+		optional string extend_data = 5;	
+	}
+	repeated Res res = 3;
+}
