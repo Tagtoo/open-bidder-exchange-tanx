@@ -7,7 +7,6 @@
     <artifactId>open-bidder-exchange-tanx</artifactId>
     <packaging>jar</packaging>
     <name>Open Bidder - Tanx support</name>
-    <version>0.1</version>
 
     <parent>
         <groupId>com.google.openbidder</groupId>
