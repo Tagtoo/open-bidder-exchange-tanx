@@ -1,7 +1,9 @@
 // Tanx�����������ݽӿ�
 // �ֶ��꾡������μ� http://sps.corp.alimama.com/ad/ADExchange/DocLib/Tan(X)%20Exchange%20API-PF.pdf
 
-package com.tagtoo.openbidder.tanx;
+syntax = "proto2";
+package com.tagtoo.openbidder.tanx.model;
+option java_outer_classname = "Tanx";
 
 message BidRequest {
 

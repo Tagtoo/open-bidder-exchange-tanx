@@ -11,10 +11,15 @@ import com.google.common.base.Strings;
 import com.google.inject.AbstractModule;
 import com.google.inject.BindingAnnotation;
 import com.google.inject.Scopes;
+import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
 import com.google.openbidder.api.platform.Exchange;
+import com.google.openbidder.bidding.OpenRtbMapper;
 import com.google.openbidder.http.HttpRoute;
+import com.tagtoo.openbidder.exchange.tanx.openrtb.DefaultTanxOpenRtbMapper;
+import com.tagtoo.openbidder.exchange.tanx.openrtb.NullTanxOpenRtbMapper;
 import com.tagtoo.openbidder.exchange.tanx.server.TanxRequestReceiver;
+import com.tagtoo.openbidder.tanx.model.Tanx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +58,8 @@ public class TanxModule extends AbstractModule {
             Multibinder.newSetBinder(binder(), HttpRoute.class)
                     .addBinding()
                     .toProvider(BidRequestRouteProvider.class).in(Scopes.SINGLETON);
-
+            bind(new TypeLiteral<OpenRtbMapper<Tanx.BidRequest,Tanx.BidResponse.Builder>>() {})
+                    .to(openRtb ? DefaultTanxOpenRtbMapper.class : NullTanxOpenRtbMapper.class);
         } else {
             logger.info("Tanx bid request handling not installed.");
         }
