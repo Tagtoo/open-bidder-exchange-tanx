@@ -1,17 +1,27 @@
 package com.tagtoo.openbidder.exchange.tanx;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.google.common.base.Strings;
 import com.google.inject.AbstractModule;
+import com.google.inject.BindingAnnotation;
+import com.google.inject.Scopes;
+import com.google.inject.multibindings.Multibinder;
+import com.google.openbidder.api.platform.Exchange;
 import com.google.openbidder.http.HttpRoute;
-import com.tagtoo.openbidder.exchange.tanx.server.TanxBidRequestPath;
-import com.tagtoo.openbidder.exchange.tanx.server.TanxBidRequestReceiver;
+import com.tagtoo.openbidder.exchange.tanx.server.TanxRequestReceiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 /**
  * Created by littleq on 2/13/14.
@@ -23,7 +33,7 @@ public class TanxModule extends AbstractModule {
 
     @Parameter(names = "--tanx_bid_path", required = false,
     description = "Path spec for Tanx bid requests")
-    private String tanxBidPath;
+    private String tanxBidPath = "/bid_request/tanx";
 
     @Parameter(names = "--tanx_openrtb",
     description = "Enable OpenRTB mapping")
@@ -31,11 +41,18 @@ public class TanxModule extends AbstractModule {
 
     @Override
     protected void configure() {
+        bind(Exchange.class).toInstance(TanxConstants.EXCHANGE);
         boolean tanxBiddingEnabled = !Strings.isNullOrEmpty(tanxBidPath);
 
         if (tanxBiddingEnabled) {
             // means Tanx bidding is installed and enabled.
+            logger.info("Binding Tanx bid requests to: {}", tanxBidPath);
 
+            // binding
+            bind(String.class).annotatedWith(TanxBidRequestPath.class).toInstance(tanxBidPath);
+            Multibinder.newSetBinder(binder(), HttpRoute.class)
+                    .addBinding()
+                    .toProvider(BidRequestRouteProvider.class).in(Scopes.SINGLETON);
 
         } else {
             logger.info("Tanx bid request handling not installed.");
@@ -50,15 +67,20 @@ public class TanxModule extends AbstractModule {
         public static final String BID = "BID";
     }
 
-    private static class HttpRouteProvider implements Provider<HttpRoute> {
+    @BindingAnnotation
+    @Target({FIELD, PARAMETER, METHOD})
+    @Retention(RUNTIME)
+    public @interface TanxBidRequestPath {
+    }
 
+    private static class BidRequestRouteProvider implements Provider<HttpRoute> {
         private final String tanxBidPath;
-        private final TanxBidRequestReceiver bidRequestReceiver;
+        private final TanxRequestReceiver bidRequestReceiver;
 
         @Inject
-        private HttpRouteProvider(
+        private BidRequestRouteProvider(
             @TanxBidRequestPath String tanxBidPath,
-            TanxBidRequestReceiver bidRequestReceiver) {
+            TanxRequestReceiver bidRequestReceiver) {
 
             this.tanxBidPath = checkNotNull(tanxBidPath);
             this.bidRequestReceiver = checkNotNull(bidRequestReceiver);
@@ -66,15 +88,12 @@ public class TanxModule extends AbstractModule {
 
         @Override
         public HttpRoute get() {
-            return HttpRoute.post(
-                    "bid_tanx",
-                    tanxBidPath,
-                    bidRequestReceiver,
-                    Feature.BID);
-
+            return new HttpRoute("BID", HttpRoute.POST, tanxBidPath, bidRequestReceiver);
         }
 
     }
+
+
 }
 
 

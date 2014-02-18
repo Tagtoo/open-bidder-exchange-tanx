@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>com.tagtoo.openbidder.exchange</groupId>
     <artifactId>open-bidder-exchange-tanx</artifactId>
     <packaging>jar</packaging>
     <name>Open Bidder - Tanx support</name>
@@ -130,7 +130,6 @@
                                 <exec executable="protoc" failonerror="true" dir="${protobufSource}">
                                     <arg value="--java_out=${protobufGenerated}" />
                                     <arg value="-I${protobufSource}" />
-                                    <arg value="-I${protobufSource}/../../../../open-bidder-exchange-tanx/src/main/protobuf" />
                                     <arg line="${proto.files}" />
                                 </exec>
                             </tasks>
@@ -154,7 +153,8 @@
                         </goals>
                         <configuration>
                             <includes>
-                                <include>com/google/openbidder/exchange/doubleclick/testing/**</include>
+                                <include>com/tagtoo/openbidder/exchange/tanx/testing/**</include>
+                                <!-- TODO: put Tanx dictionary files herer -->
                                 <include>adx-rtb-dictionaries/**</include>
                             </includes>
                         </configuration>
@@ -192,7 +192,7 @@
                     <format>html</format>
                     <instrumentation>
                         <excludes>
-                            <exclude>com/google/openbidder/exchange/doubleclick/model/*.class</exclude>
+                            <exclude>com/tagtoo/openbidder/exchange/tanx/model/*.class</exclude>
                         </excludes>
                     </instrumentation>
                 </configuration>
