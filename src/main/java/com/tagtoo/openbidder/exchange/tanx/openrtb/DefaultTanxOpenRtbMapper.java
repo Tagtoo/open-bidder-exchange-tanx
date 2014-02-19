@@ -35,24 +35,38 @@ public class DefaultTanxOpenRtbMapper
         /*
         OpenRtb protobuf model to Tanx protobuf model
          */
-        Tanx.BidResponse.Builder txReponse = Tanx.BidResponse.newBuilder();
+        Tanx.BidResponse.Builder txResponse = Tanx.BidResponse.newBuilder();
+        // Tanx latest version number
+        txResponse.setVersion(3);
+        txResponse.setBid(request.openRtb().getId());
 
         for (OpenRtb.BidResponse.SeatBidOrBuilder seatBid : response.openRtb().getSeatbidBuilderList()) {
             for (OpenRtb.BidResponse.SeatBid.BidOrBuilder bid : seatBid.getBidList()) {
                 Tanx.BidResponse.Ads.Builder ad = buildResponseAd(request, response, bid);
                 if (ad != null) {
-                    txReponse.addAds(ad);
+                    txResponse.addAds(ad);
                 }
             }
         }
 
-        return txReponse;
+        return txResponse;
     }
 
     protected @Nullable Tanx.BidResponse.Ads.Builder buildResponseAd(BidRequest request, BidResponse response, final OpenRtb.BidResponse.SeatBid.BidOrBuilder bid) {
         Tanx.BidResponse.Ads.Builder ad = Tanx.BidResponse.Ads.newBuilder();
 
-        ad.setHtmlSnippet(snippetProcessor.process(request, response, bid, bid.getAdm()));
+        // DEBUG: check extension
+        logger.debug("hasExt: {}", bid.hasExt());
+        logger.debug("getExt: {}", bid.getExt().hasClickThroughUrl());
+
+        if (bid.hasExt() && bid.getExt().hasClickThroughUrl()) {
+            logger.info("ad: {}", ad.toString());
+            ad.addClickThroughUrl(bid.getExt().getClickThroughUrl());
+        }
+
+        ad.setHtmlSnippet(snippetProcessor.process(request, response, bid, bid.getAdm()))
+            .setAdzinfoId(Integer.parseInt(bid.getImpid()))
+            .setMaxCpmPrice((int) bid.getPrice());
 
         return ad;
     }
@@ -67,7 +81,7 @@ public class DefaultTanxOpenRtbMapper
         Tanx protobuf model to OpenRtb protobuf model
          */
         OpenRtb.BidRequest.Builder request = OpenRtb.BidRequest.newBuilder()
-                .setId(toHexString(txRequest.getTidBytes()))
+                .setId(txRequest.getBid())
                 .setTmax(100);
 
         buildImps(txRequest, request);
@@ -87,10 +101,12 @@ public class DefaultTanxOpenRtbMapper
             imp.setBidfloor(bidFloor);
         }
 
+        if (request.getImpCount() == 0) {
+            logger.warn("Request has no impressions");
+        }
+
     }
 
-
-    // Helpers
     private static String toHexString(ByteString bytes) {
         StringBuilder sb = new StringBuilder(bytes.size() * 2);
 

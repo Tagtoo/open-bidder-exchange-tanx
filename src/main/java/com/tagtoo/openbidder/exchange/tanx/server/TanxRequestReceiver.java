@@ -4,6 +4,7 @@ import com.google.inject.Singleton;
 import com.google.openbidder.api.bidding.BidController;
 import com.google.openbidder.api.bidding.BidRequest;
 import com.google.openbidder.api.bidding.BidResponse;
+import com.google.openbidder.api.interceptor.InterceptorAbortException;
 import com.google.openbidder.api.interceptor.RequestReceiver;
 import com.google.openbidder.api.model.BidderModel;
 import com.google.openbidder.api.openrtb.OpenRtb;
@@ -44,27 +45,38 @@ public class TanxRequestReceiver extends RequestReceiver<BidController> {
 
     @Override
     public void receive(HttpReceiverContext ctx) {
-        String requestData = new String(ctx.httpRequest().getContent().toByteArray());
+        BidRequest request;
         logger.info("tanx:receive");
-        logger.info("requestData: {}", requestData);
 
-        BidRequest request = new BidRequest(
-                TanxExchange.INSTANCE,
-                ctx.httpRequest(),
-                requestData,
-                OpenRtb.BidRequest.newBuilder()
-                    .setId("1")
-                    .build(),
-                Collections.<BidderModel.AdUnit>emptyList()
-        );
+        try {
+            request = mapToOpenBidderRequest(ctx.httpRequest());
+        } catch (InvalidProtocolBufferException e) {
+            e.printStackTrace();
+            request = null;
+        }
+
         BidResponse response = new BidResponse(TanxExchange.INSTANCE, ctx.httpResponse());
-        controller().onRequest(request, response);
 
         // fetch the bidding result of interceptors
         // now we assume the bid will be only one, in the future we could concat them.
-        ctx.httpResponse().setContent("test");
+        Tanx.BidResponse.Builder responseBuilder = handleBidRequest(request, response);
+        Tanx.BidResponse txResponse = responseBuilder.build();
+        ctx.httpResponse().setContent(txResponse.toByteString());
+    }
 
+    Tanx.BidResponse.Builder handleBidRequest(BidRequest request, BidResponse response) {
+        Tanx.BidRequest txRequest = request.nativeRequest();
 
+        try {
+            controller().onRequest(request, response);
+            Tanx.BidResponse.Builder txResponse = mapper.toNative(request, response);
+
+            return txResponse;
+        } catch (InterceptorAbortException e) {
+            logger.error("InterceptorAborted", e);
+            interceptorAbortMeter().mark();
+            return Tanx.BidResponse.newBuilder();
+        }
     }
 
     BidRequest mapToOpenBidderRequest(HttpRequest httpRequest) throws InvalidProtocolBufferException {

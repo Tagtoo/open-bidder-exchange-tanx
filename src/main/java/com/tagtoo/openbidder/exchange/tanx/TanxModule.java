@@ -47,6 +47,7 @@ public class TanxModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(Exchange.class).toInstance(TanxConstants.EXCHANGE);
+        //bind(SnippetProcessor.class).to(TanxSnippetProcessor.class).in(Scopes.SINGLETON);
         boolean tanxBiddingEnabled = !Strings.isNullOrEmpty(tanxBidPath);
 
         if (tanxBiddingEnabled) {
