@@ -1,5 +1,6 @@
 package com.tagtoo.openbidder.exchange.tanx.interceptor;
 
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
@@ -11,8 +12,8 @@ import com.google.openbidder.api.bidding.BidInterceptor;
 import com.google.openbidder.api.bidding.BidRequest;
 import com.google.openbidder.api.bidding.BidResponse;
 import com.google.openbidder.api.interceptor.InterceptorChain;
-import com.google.openbidder.api.openrtb.OpenRtb;
-import com.google.openbidder.api.openrtb.OpenRtb.BidResponse.SeatBid.Bid.BidExt;
+import com.google.openbidder.api.openrtb.OpenRtb.BidRequest.Impression;
+import com.google.openbidder.api.openrtb.OpenRtb.BidResponse.SeatBid.Bid;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -20,38 +21,35 @@ import java.lang.annotation.Target;
 import javax.inject.Inject;
 
 /**
- * Created by littleq on 2/18/14.
+ * Interceptor that creates a bid with a fixed, configurable price.
  */
-public class CpmMultiplierBidInterceptor implements BidInterceptor{
-    private final float cpmMultiplier;
+public class CpmValueBidInterceptor implements BidInterceptor {
+    private final float cpmValue;
 
     @Inject
-    public CpmMultiplierBidInterceptor(@Multiplier float cpmMultiplier) {
-        checkArgument(cpmMultiplier >= 0); // will also fail for NaN
-        this.cpmMultiplier = cpmMultiplier;
+    public CpmValueBidInterceptor(@Value float cpmValue) {
+        checkArgument(cpmValue > 0); // will also fail for NaN
+        this.cpmValue = cpmValue;
     }
 
     @Override
     public void execute(InterceptorChain<BidRequest, BidResponse> chain) {
-        for (OpenRtb.BidRequest.Impression imp : chain.getRequest().openRtb().getImpList()) {
-            float minCpm = imp.getBidfloor();
 
-            chain.getResponse().addBid(OpenRtb.BidResponse.SeatBid.Bid.newBuilder()
-                    .setId("1")
-                    .setImpid("1")
-                    .setPrice(minCpm * cpmMultiplier)
-                    .setExt(BidExt.newBuilder().setClickThroughUrl("http://www.google.com"))
+        for (Impression imp : chain.getRequest().openRtb().getImpList()) {
+            chain.getResponse().addBid(Bid.newBuilder()
+                    .setId(imp.getId())
+                    .setImpid(imp.getId())
+                    .setPrice(cpmValue)
                     .setAdm("<blink>UNDER CONSTRUCTION</blink>"));
         }
 
         chain.proceed();
-
     }
 
     @BindingAnnotation
     @Target({ FIELD, PARAMETER, METHOD })
     @Retention(RUNTIME)
-    public @interface Multiplier {
+    public @interface Value {
     }
 }
 
