@@ -8,7 +8,7 @@ import com.google.inject.AbstractModule;
  * Created by littleq on 3/3/14.
  */
 @Parameters(separators = "=")
-public class InterceptorModule extends AbstractModule{
+public class InterceptorsModule extends AbstractModule{
     @Parameter(names = "--tanx_cpmmultiplier_multiplier", required = false,
             description = "CpmMultiplierBidInterceptor: Multiplier")
     private float cpmMultiplierMultiplier = 1.0f;

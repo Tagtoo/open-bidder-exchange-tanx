@@ -40,7 +40,6 @@ public class CpmMultiplierBidInterceptor implements BidInterceptor{
                     .setId("1")
                     .setImpid("1")
                     .setPrice(minCpm * cpmMultiplier)
-                    .setExt(BidExt.newBuilder().setClickThroughUrl("http://www.google.com"))
                     .setAdm("<blink>UNDER CONSTRUCTION</blink>"));
         }
 
