@@ -1,5 +1,6 @@
 package com.tagtoo.openbidder.exchange.tanx.openrtb;
 
+import com.google.common.collect.Iterables;
 import com.google.openbidder.api.bidding.BidRequest;
 import com.google.openbidder.api.bidding.BidResponse;
 import com.google.openbidder.api.openrtb.OpenRtb;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import javax.sql.rowset.Predicate;
 
 /**
  * Created by littleq on 2/18/14.
@@ -64,9 +66,28 @@ public class DefaultTanxOpenRtbMapper
             ad.addClickThroughUrl(bid.getExt().getClickThroughUrl());
         }
 
+        OpenRtb.BidRequest.Impression imp = Iterables.tryFind(request.openRtb().getImpList(), new com.google.common.base.Predicate<OpenRtb.BidRequest.Impression>() {
+            @Override
+            public boolean apply(OpenRtb.BidRequest.Impression input) {
+                return input.getId().equals(bid.getImpid());
+            }
+        }).orNull();
+
         ad.setHtmlSnippet(snippetProcessor.process(request, response, bid, bid.getAdm()))
             .setAdzinfoId(Integer.parseInt(bid.getImpid()))
             .setMaxCpmPrice((int) bid.getPrice());
+
+        /*
+        // Tanx didn't request ad size info here, so we just pass it.
+        if (imp.hasBanner()) {
+            OpenRtb.BidRequest.Impression.Banner banner = imp.getBanner();
+
+            if (banner.hasW() && banner.hasH()) {
+                String sizeString = String.format("{}x{}", banner.getW(), banner.getH());
+            }
+        }
+        */
+
 
         return ad;
     }
@@ -104,6 +125,25 @@ public class DefaultTanxOpenRtbMapper
         if (request.getImpCount() == 0) {
             logger.warn("Request has no impressions");
         }
+
+        OpenRtb.BidRequest.Impression.Banner.Builder banner = OpenRtb.BidRequest.Impression.Banner.newBuilder()
+                .setId(String.valueOf(txSlot.getId()));
+
+        if (txSlot.hasSize()) {
+            /*
+            Tanx size: "300x250" (width x height)
+            OpenRtb: W, H
+            So we need to parse the size information from string to the integers;
+             */
+            String sizeString = txSlot.getSize();
+            String sizePattern = "^(\\d+)x(\\d+)$";
+            int slotWidth = (int) Integer.valueOf(sizeString.replaceAll(sizePattern, "$1"));
+            int slotHeight = (int) Integer.valueOf(sizeString.replaceAll(sizePattern, "$2"));
+            banner.setW(slotWidth);
+            banner.setH(slotHeight);
+        }
+
+        imp.setBanner(banner);
 
     }
 
