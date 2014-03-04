@@ -110,40 +110,42 @@ public class DefaultTanxOpenRtbMapper
     }
 
     protected void buildImps(Tanx.BidRequest txRequest, OpenRtb.BidRequest.Builder request) {
+        if (txRequest.getAdzinfoCount() > 0) {
 
-        Tanx.BidRequest.AdzInfo txSlot = txRequest.getAdzinfo(0);
+            Tanx.BidRequest.AdzInfo txSlot = txRequest.getAdzinfo(0);
 
-        OpenRtb.BidRequest.Impression.Builder imp = request.addImpBuilder()
-                .setId(String.valueOf(txSlot.getId()))
-                .setBidfloorcur("RMB");
-        Float bidFloor = Float.valueOf(txSlot.getMinCpmPrice());
+            OpenRtb.BidRequest.Impression.Builder imp = request.addImpBuilder()
+                    .setId(String.valueOf(txSlot.getId()))
+                    .setBidfloorcur("RMB");
+            Float bidFloor = Float.valueOf(txSlot.getMinCpmPrice());
 
-        if (bidFloor != null ) {
-            imp.setBidfloor(bidFloor);
+            if (bidFloor != null ) {
+                imp.setBidfloor(bidFloor);
+            }
+
+            if (request.getImpCount() == 0) {
+                logger.warn("Request has no impressions");
+            }
+
+            OpenRtb.BidRequest.Impression.Banner.Builder banner = OpenRtb.BidRequest.Impression.Banner.newBuilder()
+                    .setId(String.valueOf(txSlot.getId()));
+
+            if (txSlot.hasSize()) {
+                /*
+                Tanx size: "300x250" (width x height)
+                OpenRtb: W, H
+                So we need to parse the size information from string to the integers;
+                 */
+                String sizeString = txSlot.getSize();
+                String sizePattern = "^(\\d+)x(\\d+)$";
+                int slotWidth = (int) Integer.valueOf(sizeString.replaceAll(sizePattern, "$1"));
+                int slotHeight = (int) Integer.valueOf(sizeString.replaceAll(sizePattern, "$2"));
+                banner.setW(slotWidth);
+                banner.setH(slotHeight);
+            }
+
+            imp.setBanner(banner);
         }
-
-        if (request.getImpCount() == 0) {
-            logger.warn("Request has no impressions");
-        }
-
-        OpenRtb.BidRequest.Impression.Banner.Builder banner = OpenRtb.BidRequest.Impression.Banner.newBuilder()
-                .setId(String.valueOf(txSlot.getId()));
-
-        if (txSlot.hasSize()) {
-            /*
-            Tanx size: "300x250" (width x height)
-            OpenRtb: W, H
-            So we need to parse the size information from string to the integers;
-             */
-            String sizeString = txSlot.getSize();
-            String sizePattern = "^(\\d+)x(\\d+)$";
-            int slotWidth = (int) Integer.valueOf(sizeString.replaceAll(sizePattern, "$1"));
-            int slotHeight = (int) Integer.valueOf(sizeString.replaceAll(sizePattern, "$2"));
-            banner.setW(slotWidth);
-            banner.setH(slotHeight);
-        }
-
-        imp.setBanner(banner);
 
     }
 

@@ -45,22 +45,25 @@ public class SizeFilterInterceptor extends FilterBidsInterceptor {
 
     @Override
     protected Function<OpenRtb.BidResponse.SeatBid.Bid, Boolean> createFilter(BidRequest bidRequest, BidResponse bidResponse) {
-        OpenRtb.BidRequest.Impression.Banner banner = bidRequest.openRtb().getImp(0).getBanner();
+        if (bidRequest.openRtb().getImpCount() > 0) {
+            OpenRtb.BidRequest.Impression.Banner banner = bidRequest.openRtb().getImp(0).getBanner();
 
-        if (banner.hasW() && banner.hasH()) {
-            Size bannerSize = new Size(banner.getW(), banner.getH());
+            if (banner.hasW() && banner.hasH()) {
+                Size bannerSize = new Size(banner.getW(), banner.getH());
 
 
-            if (allowedSizePair.contains(bannerSize.toString())) {
-                logger.debug("accepted");
-                logger.debug("Size: {}", bannerSize.toString());
-                logger.debug("SizeW: {}", banner.getW());
-                logger.debug("SizeH: {}", banner.getH());
-                return ACCEPT_ALL;
-            } else {
-                logger.debug("removed");
-                return REMOVE_ALL;
+                if (allowedSizePair.contains(bannerSize.toString())) {
+                    logger.debug("accepted");
+                    logger.debug("Size: {}", bannerSize.toString());
+                    logger.debug("SizeW: {}", banner.getW());
+                    logger.debug("SizeH: {}", banner.getH());
+                    return ACCEPT_ALL;
+                } else {
+                    logger.debug("removed");
+                    return REMOVE_ALL;
+                }
             }
+
         }
         logger.debug("removed");
         return REMOVE_ALL;
