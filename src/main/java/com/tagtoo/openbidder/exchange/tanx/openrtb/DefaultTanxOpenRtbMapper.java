@@ -7,6 +7,8 @@ import com.google.openbidder.api.openrtb.OpenRtb;
 import com.google.openbidder.api.snippet.SnippetProcessor;
 import com.google.openbidder.bidding.OpenRtbMapper;
 import com.google.protobuf.ByteString;
+import com.tagtoo.openbidder.exchange.tanx.dictionary.TanxCategoriesEnum;
+import com.tagtoo.openbidder.exchange.tanx.dictionary.TanxCreativeTypesEnum;
 import com.tagtoo.openbidder.tanx.model.Tanx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,23 +40,30 @@ public class DefaultTanxOpenRtbMapper
         OpenRtb protobuf model to Tanx protobuf model
          */
         Tanx.BidResponse.Builder txResponse = Tanx.BidResponse.newBuilder();
+        int ad_idx = 0;
         // Tanx latest version number
         txResponse.setVersion(3);
         txResponse.setBid(request.openRtb().getId());
 
         for (OpenRtb.BidResponse.SeatBidOrBuilder seatBid : response.openRtb().getSeatbidBuilderList()) {
             for (OpenRtb.BidResponse.SeatBid.BidOrBuilder bid : seatBid.getBidList()) {
-                Tanx.BidResponse.Ads.Builder ad = buildResponseAd(request, response, bid);
+                Tanx.BidResponse.Ads.Builder ad = buildResponseAd(request, response, bid, ad_idx);
                 if (ad != null) {
                     txResponse.addAds(ad);
                 }
+                ad_idx++;
             }
         }
 
         return txResponse;
     }
 
-    protected @Nullable Tanx.BidResponse.Ads.Builder buildResponseAd(BidRequest request, BidResponse response, final OpenRtb.BidResponse.SeatBid.BidOrBuilder bid) {
+    protected @Nullable
+    Tanx.BidResponse.Ads.Builder
+    buildResponseAd(BidRequest request,
+                    BidResponse response,
+                    final OpenRtb.BidResponse.SeatBid.BidOrBuilder bid,
+                    final int ad_idx) {
         Tanx.BidResponse.Ads.Builder ad = Tanx.BidResponse.Ads.newBuilder();
 
         // DEBUG: check extension
@@ -73,9 +82,31 @@ public class DefaultTanxOpenRtbMapper
             }
         }).orNull();
 
-        ad.setHtmlSnippet(snippetProcessor.process(request, response, bid, bid.getAdm()))
+        ad
+            .setHtmlSnippet(snippetProcessor.process(request, response, bid, bid.getAdm()))
             .setAdzinfoId(Integer.parseInt(bid.getImpid()))
             .setMaxCpmPrice((int) bid.getPrice());
+
+        // add category
+        // TODO: now is hard-coded, we don't have a way to detect the categories of a selected ad.
+        ad
+                .addCategory(TanxCategoriesEnum.SENSITIVE_CA_POLITIC.key())
+                .addCategory(TanxCategoriesEnum.AD_CA_BROADCAST.key());
+
+        // add destination_url
+        // TODO: hard-coded, the same reason, now use all click-through url instead.
+        for (String clickThroughUrl : ad.getClickThroughUrlList()) {
+            ad.addDestinationUrl(clickThroughUrl);
+        }
+
+        // add creative type
+        // TODO: hard-coded because we have only iframe ad, all creative types has been enumerated in TanxCreativeTypesEnum
+        ad
+                .addCreativeType(TanxCreativeTypesEnum.IMAGE.key())
+                .addCreativeType(TanxCreativeTypesEnum.IFRAME.key());
+
+        // add ad_bid_idx
+        ad.setAdBidCountIdx(ad_idx);
 
         /*
         // Tanx didn't request ad size info here, so we just pass it.
@@ -110,10 +141,10 @@ public class DefaultTanxOpenRtbMapper
     }
 
     protected void buildImps(Tanx.BidRequest txRequest, OpenRtb.BidRequest.Builder request) {
-        if (txRequest.getAdzinfoCount() > 0) {
+        // NOTE: this observed only appear as 0 or 1 for now.
+        logger.info("Adx info count: {}", txRequest.getAdzinfoCount());
 
-            Tanx.BidRequest.AdzInfo txSlot = txRequest.getAdzinfo(0);
-
+        for (Tanx.BidRequest.AdzInfo txSlot: txRequest.getAdzinfoList()){
             OpenRtb.BidRequest.Impression.Builder imp = request.addImpBuilder()
                     .setId(String.valueOf(txSlot.getId()))
                     .setBidfloorcur("RMB");
