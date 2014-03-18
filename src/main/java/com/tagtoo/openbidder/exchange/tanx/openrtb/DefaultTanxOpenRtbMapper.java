@@ -90,8 +90,8 @@ public class DefaultTanxOpenRtbMapper
         // add category
         // TODO: now is hard-coded, we don't have a way to detect the categories of a selected ad.
         ad
-                .addCategory(TanxCategoriesEnum.SENSITIVE_CA_POLITIC.key())
-                .addCategory(TanxCategoriesEnum.AD_CA_BROADCAST.key());
+            .addCategory(TanxCategoriesEnum.SENSITIVE_CA_POLITIC.key())
+            .addCategory(TanxCategoriesEnum.AD_CA_BROADCAST.key());
 
         // add destination_url
         // TODO: hard-coded, the same reason, now use all click-through url instead.
@@ -102,11 +102,16 @@ public class DefaultTanxOpenRtbMapper
         // add creative type
         // TODO: hard-coded because we have only iframe ad, all creative types has been enumerated in TanxCreativeTypesEnum
         ad
-                .addCreativeType(TanxCreativeTypesEnum.IMAGE.key())
-                .addCreativeType(TanxCreativeTypesEnum.IFRAME.key());
+            .addCreativeType(TanxCreativeTypesEnum.IMAGE.key())
+            .addCreativeType(TanxCreativeTypesEnum.IFRAME.key());
 
         // add ad_bid_idx
         ad.setAdBidCountIdx(ad_idx);
+
+        // add creative id
+        if (bid.hasCrid()) {
+            ad.setCreativeId(bid.getCrid());
+        }
 
         /*
         // Tanx didn't request ad size info here, so we just pass it.
