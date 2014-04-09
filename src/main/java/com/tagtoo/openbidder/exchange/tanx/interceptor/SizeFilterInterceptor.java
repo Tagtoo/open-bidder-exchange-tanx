@@ -51,7 +51,6 @@ public class SizeFilterInterceptor extends FilterBidsInterceptor {
             if (banner.hasW() && banner.hasH()) {
                 Size bannerSize = new Size(banner.getW(), banner.getH());
 
-
                 if (allowedSizePair.contains(bannerSize.toString())) {
                     logger.debug("accepted");
                     logger.debug("Size: {}", bannerSize.toString());
