@@ -2,7 +2,7 @@
 // 字段详尽解释请参见 http://sps.corp.alimama.com/ad/ADExchange/DocLib/Tan(X)%20Exchange%20API-PF.pdf
 
 syntax = "proto2";
-package com.tagtoo.openbidder.tanx.model;
+package com.tagtoo.openbidder.exchange.tanx.model;
 option java_outer_classname = "Tanx";
 
 message BidRequest {

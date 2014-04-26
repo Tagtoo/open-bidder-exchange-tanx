@@ -9,13 +9,12 @@ import com.google.openbidder.bidding.OpenRtbMapper;
 import com.google.protobuf.ByteString;
 import com.tagtoo.openbidder.exchange.tanx.dictionary.TanxCategoriesEnum;
 import com.tagtoo.openbidder.exchange.tanx.dictionary.TanxCreativeTypesEnum;
-import com.tagtoo.openbidder.tanx.model.Tanx;
+import com.tagtoo.openbidder.exchange.tanx.model.Tanx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import javax.sql.rowset.Predicate;
 
 /**
  * Created by littleq on 2/18/14.

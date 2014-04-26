@@ -21,7 +21,7 @@ import com.tagtoo.openbidder.exchange.tanx.openrtb.DefaultTanxOpenRtbMapper;
 import com.tagtoo.openbidder.exchange.tanx.openrtb.NullTanxOpenRtbMapper;
 import com.tagtoo.openbidder.exchange.tanx.server.TanxRequestReceiver;
 import com.tagtoo.openbidder.exchange.tanx.server.TanxSnippetProcessor;
-import com.tagtoo.openbidder.tanx.model.Tanx;
+import com.tagtoo.openbidder.exchange.tanx.model.Tanx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

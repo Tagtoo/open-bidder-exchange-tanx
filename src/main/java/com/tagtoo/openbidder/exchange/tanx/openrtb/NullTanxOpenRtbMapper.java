@@ -4,7 +4,7 @@ import com.google.openbidder.api.bidding.BidRequest;
 import com.google.openbidder.api.bidding.BidResponse;
 import com.google.openbidder.api.openrtb.OpenRtb;
 import com.google.openbidder.bidding.OpenRtbMapper;
-import com.tagtoo.openbidder.tanx.model.Tanx;
+import com.tagtoo.openbidder.exchange.tanx.model.Tanx;
 
 import javax.annotation.Nullable;
 

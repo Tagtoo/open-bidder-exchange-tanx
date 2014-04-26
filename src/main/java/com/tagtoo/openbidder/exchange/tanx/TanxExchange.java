@@ -1,7 +1,7 @@
 package com.tagtoo.openbidder.exchange.tanx;
 
 import com.google.openbidder.api.platform.Exchange;
-import com.tagtoo.openbidder.tanx.model.Tanx;
+import com.tagtoo.openbidder.exchange.tanx.model.Tanx;
 
 /**
  * Created by littleq on 2/17/14.

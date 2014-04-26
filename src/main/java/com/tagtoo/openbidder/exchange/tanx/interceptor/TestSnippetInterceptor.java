@@ -5,7 +5,7 @@ import com.google.openbidder.api.bidding.BidRequest;
 import com.google.openbidder.api.bidding.BidResponse;
 import com.google.openbidder.api.interceptor.InterceptorChain;
 import com.google.openbidder.api.openrtb.OpenRtb;
-import com.tagtoo.openbidder.tanx.model.Tanx;
+import com.tagtoo.openbidder.exchange.tanx.model.Tanx;
 
 /**
  * Created by littleq on 3/3/14.

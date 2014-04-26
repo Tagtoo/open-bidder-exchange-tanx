@@ -1,0 +1,74 @@
+// from api.model.BidderModel
+// since I don't want to modify the core components of open bidder
+// so I put this here but not in openbidder.api.model
+// - Colin
+syntax = "proto2";
+package com.tagtoo.openbidder.exchange.tanx.model;
+
+/*
+ * Ad size in pixels.
+ */
+message AdSize {
+  // Height in pixels.
+  required uint32 height = 1;
+
+  // Width in pixels.
+  required uint32 width = 2;
+}
+
+/*
+ * Doubleclick source information.
+ */
+message TanxAdInfo {
+  // Ad id in Tanx.
+  required uint64 ad_id = 1;
+
+  // Ad group id.
+  required uint64 adgroup_id = 2;
+
+  // Maximum CPM that is bid for the ad, defined in the local currency.
+  // This currency unit should match that defined in your Doubleclick account.
+  required uint64 max_cpm_micros = 3;
+
+  // Minimum CPM value that you can bid to not be filtered before the
+  // auction. This may be a global minimum, or it may be a minimum set by
+  // the publisher. The value is in micros of your account currency.
+  optional int64 minimum_cpm_micros = 4;
+
+  // Ad sizes. Some formats (eg VAST) can have multiple sizes. Those aren't currently supported
+  // in the bidders and UI but the proto allows that expression.
+  repeated AdSize ad_size = 5;
+
+  // Type of the creative in Tanx
+  enum CreativeType {
+      TEXT = 1;
+      IMAGE = 2;
+      FLASH = 3;
+      VIDEO = 4;
+      HYPERLINK = 5;
+      IFRAME = 6;
+      JAVASCRIPT = 7;
+      HTML = 8;
+      NOEXPENABLE_FLASH = 9;
+  }
+  optional CreativeType creative_type = 6 [ default = IMAGE ];
+
+  // campaign id
+  required uint64 campaign_id = 7;
+}
+
+/*
+ * An AdUnit is the representation of an ad that has been pre-targeted by an exchange.
+ */
+message AdUnit {
+  // ID of the AdUnit. Note: this is an internal ID that must be unique within Open Bidder.
+  // Generally it'll take the form of prepending the exchange to the ad ID but this is
+  // not guaranteed.
+  required string adunit_id = 1;
+
+  // Whether the AdUnit is active or not.
+  optional bool active = 2 [ default = true ];
+
+  // Tanx ad data
+  optional TanxAdInfo tanx = 3;
+}
