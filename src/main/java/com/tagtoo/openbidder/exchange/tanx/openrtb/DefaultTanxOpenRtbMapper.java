@@ -70,8 +70,9 @@ public class DefaultTanxOpenRtbMapper
         logger.debug("getExt: {}", bid.getExt().hasClickThroughUrl());
 
         if (bid.hasExt() && bid.getExt().hasClickThroughUrl()) {
-            logger.info("ad: {}", ad.toString());
+            logger.debug("ad: {}", ad.toString());
             ad.addClickThroughUrl(bid.getExt().getClickThroughUrl());
+            ad.addDestinationUrl(bid.getExt().getClickThroughUrl());
         }
 
         OpenRtb.BidRequest.Impression imp = Iterables.tryFind(request.openRtb().getImpList(), new com.google.common.base.Predicate<OpenRtb.BidRequest.Impression>() {
@@ -146,7 +147,7 @@ public class DefaultTanxOpenRtbMapper
 
     protected void buildImps(Tanx.BidRequest txRequest, OpenRtb.BidRequest.Builder request) {
         // NOTE: this observed only appear as 0 or 1 for now.
-        logger.info("Adx info count: {}", txRequest.getAdzinfoCount());
+        logger.debug("Adx info count: {}", txRequest.getAdzinfoCount());
 
         for (Tanx.BidRequest.AdzInfo txSlot: txRequest.getAdzinfoList()){
             OpenRtb.BidRequest.Impression.Builder imp = request.addImpBuilder()

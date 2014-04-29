@@ -45,7 +45,7 @@ public class TanxRequestReceiver extends RequestReceiver<BidController> {
     @Override
     public void receive(HttpReceiverContext ctx) {
         BidRequest request;
-        logger.info("tanx:receive");
+        logger.debug("tanx:receive");
 
         try {
             request = mapToOpenBidderRequest(ctx.httpRequest());
