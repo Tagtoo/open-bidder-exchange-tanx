@@ -1,0 +1,20 @@
+## Eclipse files
+.classpath
+.project
+.settings
+target/*
+*/target/*
+*/.settings/
+**/.nfs*
+
+## IntelliJ files
+*.iml
+*.ipr
+*.iws
+.idea
+
+## Shade files
+dependency-reduced-pom.xml
+
+## python
+*.py[cod]
