@@ -11,7 +11,7 @@
     <parent>
         <groupId>com.google.openbidder</groupId>
         <artifactId>openbidder</artifactId>
-        <version>0.5.3</version>
+        <version>0.5.5</version>
     </parent>
 
     <dependencies>
@@ -130,18 +130,18 @@
                                 <exec executable="protoc" failonerror="true" dir="${protobufSource}">
                                     <arg value="--java_out=${protobufGenerated}" />
                                     <arg value="-I${protobufSource}" />
+                                    <arg value="-I${protobufSource}/../../../../open-bidder-api/src/main/protobuf" />
                                     <arg line="${proto.files}" />
                                 </exec>
                             </tasks>
                         </configuration>
-
                         <goals>
                             <goal>run</goal>
                         </goals>
-
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>${jarMavenPluginVersion}</version>
@@ -155,7 +155,6 @@
                             <includes>
                                 <include>com/tagtoo/openbidder/exchange/tanx/testing/**</include>
                                 <!-- TODO: put Tanx dictionary files herer -->
-                                <include>adx-rtb-dictionaries/**</include>
                             </includes>
                         </configuration>
                         <phase>test-compile</phase>
@@ -192,12 +191,54 @@
                     <format>html</format>
                     <instrumentation>
                         <excludes>
-                            <exclude>com/tagtoo/openbidder/exchange/tanx/model/*.class</exclude>
+                            <exclude>com/google/openbidder/exchange/tanx/config/**</exclude>
+                            <exclude>com/tagtoo/openbidder/exchange/tanx/model/**</exclude>
                         </excludes>
                     </instrumentation>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <property>
+                    <name>!m2e.version</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default-compile</id>
+                                <configuration>
+                                    <compilerId>javac</compilerId>
+                                    <includes>
+                                        <include>com/tagtoo/openbidder/exchange/tanx/model/*.java</include>
+                                    </includes>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>compile-main</id>
+                                <goals><goal>compile</goal></goals>
+                                <phase>compile</phase>
+                                <configuration>
+                                    <compilerId>javac-with-errorprone</compilerId>
+                                    <forceJavacCompilerUse>true</forceJavacCompilerUse>
+                                    <excludes>
+                                        <exclude>com/tagtoo/openbidder/exchange/tanx/model/*.java</exclude>
+                                    </excludes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

@@ -65,14 +65,8 @@ public class DefaultTanxOpenRtbMapper
                     final int ad_idx) {
         Tanx.BidResponse.Ads.Builder ad = Tanx.BidResponse.Ads.newBuilder();
 
-        // DEBUG: check extension
-        logger.debug("hasExt: {}", bid.hasExt());
-        logger.debug("getExt: {}", bid.getExt().hasClickThroughUrl());
-
-        if (bid.hasExt() && bid.getExt().hasClickThroughUrl()) {
-            logger.debug("ad: {}", ad.toString());
-            ad.addClickThroughUrl(bid.getExt().getClickThroughUrl());
-            ad.addDestinationUrl(bid.getExt().getClickThroughUrl());
+        if (bid.getExt().getClickThroughUrlCount() != 0) {
+            ad.addAllClickThroughUrl(bid.getExt().getClickThroughUrlList());
         }
 
         OpenRtb.BidRequest.Impression imp = Iterables.tryFind(request.openRtb().getImpList(), new com.google.common.base.Predicate<OpenRtb.BidRequest.Impression>() {

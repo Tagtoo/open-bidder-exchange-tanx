@@ -26,7 +26,7 @@ public class TestSnippetInterceptor implements BidInterceptor{
                 // for each bid
                 for (OpenRtb.BidResponse.SeatBid.Bid.Builder bid: seatBid.getBidBuilderList()) {
                     bid
-                        .setExt(OpenRtb.BidResponse.SeatBid.Bid.BidExt.newBuilder().setClickThroughUrl("http://www.google.com"))
+                        .setExt(OpenRtb.BidResponse.SeatBid.Bid.BidExt.newBuilder().addClickThroughUrl("http://www.google.com"))
                         .setCrid("tagtootest")
                         .setAdm(snippet);
                     if (isTest) {

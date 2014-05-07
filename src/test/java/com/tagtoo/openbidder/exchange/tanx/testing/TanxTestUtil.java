@@ -2,12 +2,12 @@ package com.tagtoo.openbidder.exchange.tanx.testing;
 
 import com.google.common.base.Joiner;
 import com.google.openbidder.api.bidding.BidRequest;
-import com.google.openbidder.api.model.collection.AdUnitCollection;
 import com.google.openbidder.api.snippet.SnippetProcessor;
 import com.google.openbidder.api.testing.bidding.BiddingTestUtil;
-import com.google.openbidder.api.testing.model.AdUnitTestUtil;
+import com.google.openbidder.config.bid.ClickUrl;
+import com.google.openbidder.config.bid.ImpressionUrl;
 import com.google.openbidder.http.HttpRequest;
-import com.google.openbidder.http.request.StandardHttpRequestBuilder;
+import com.google.openbidder.http.request.StandardHttpRequest;
 import com.tagtoo.openbidder.exchange.tanx.TanxConstants;
 import com.tagtoo.openbidder.exchange.tanx.model.Tanx;
 import com.tagtoo.openbidder.exchange.tanx.openrtb.DefaultTanxOpenRtbMapper;
@@ -22,7 +22,7 @@ public class TanxTestUtil {
     /*
     Referencing tanx_requester/generator.py to build bid requests
      */
-    private static final HttpRequest DEFAULT_REQUEST = StandardHttpRequestBuilder.newBuilder()
+    private static final HttpRequest DEFAULT_REQUEST = StandardHttpRequest.newBuilder()
             .setMethod("GET")
             .setUri(BiddingTestUtil.DEFAULT_URI)
             .build();
@@ -117,27 +117,21 @@ public class TanxTestUtil {
     }
 
     public static BidRequest newBidRequest(Tanx.BidRequestOrBuilder adxRequest) {
-        return newBidRequest(adxRequest, AdUnitTestUtil.newAdUnitCollection());
-    }
-
-    public static BidRequest newBidRequest(Tanx.BidRequestOrBuilder adxRequest, AdUnitCollection adUnitCollection) {
         Tanx.BidRequest txRequest = adxRequest instanceof Tanx.BidRequest
                 ? (Tanx.BidRequest) adxRequest
                 : ((Tanx.BidRequest.Builder) adxRequest).build();
-
         return new BidRequest(
                 TanxConstants.EXCHANGE,
                 DEFAULT_REQUEST,
                 txRequest,
-                new DefaultTanxOpenRtbMapper(newSnippetProcessor()).toOpenRtb(txRequest),
-                null
+                new DefaultTanxOpenRtbMapper(newSnippetProcessor()).toOpenRtb(txRequest)
         );
     }
 
     public static SnippetProcessor newSnippetProcessor() {
         return new TanxSnippetProcessor(
                 BiddingTestUtil.DEFAULT_CALLBACK_URL,
-                BiddingTestUtil.DEFAULT_IMPRESSION_URL,
-                BiddingTestUtil.DEFAULT_CLICK_URL);
+                ImpressionUrl.DEFAULT,
+                ClickUrl.DEFAULT);
     }
 }
