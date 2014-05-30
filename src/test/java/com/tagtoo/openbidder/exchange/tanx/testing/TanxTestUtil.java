@@ -104,6 +104,8 @@ public class TanxTestUtil {
         Tanx.BidRequest.Builder fakeBidRequest = Tanx.BidRequest.newBuilder();
 
         fakeBidRequest
+                .setBid("1")
+                .setVersion(3) // they support 3 right now
                 .addAdzinfo(generateAdzInfo());
 
         appendPageInfo(fakeBidRequest);
@@ -113,7 +115,7 @@ public class TanxTestUtil {
     }
 
     public static BidRequest newBidRequest() {
-        return newBidRequest(Tanx.BidRequest.newBuilder().setBid("1"));
+        return newBidRequest(newTanxRequest());
     }
 
     public static BidRequest newBidRequest(Tanx.BidRequestOrBuilder adxRequest) {
